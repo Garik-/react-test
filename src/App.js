@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 
 import {
-  Route,
-  Switch,
   Link
 } from 'react-router-dom'
+
+import Router from './Router'
 
 
 
@@ -51,19 +51,23 @@ const Home = () => (
   </div>
 )
 
-const Main = () => (
+/*const Main = () => (
   <main>
     <Switch>
       <Route exact path='/' component={Home}/>
       <Route exact path='/about' component={About}/>
     </Switch>
   </main>
-)
+)*/
+
+
+
+
 
 class App extends Component {
   render() {
     return ( 
-      <div><Header/><Main /></div>
+      <div><Header/><Router/></div>
     );
   }
 }
