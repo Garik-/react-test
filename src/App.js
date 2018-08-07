@@ -31,7 +31,7 @@ const itemStorage = {
   },
 
   createEvent(event) {
-    this.listeners.map((listener) => { listener(event) });
+    this.listeners.forEach((listener) => { listener(event) });
   }
 };
 
