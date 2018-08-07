@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import styled from 'styled-components'
+
 import './App.css';
 
 
@@ -7,21 +9,29 @@ const itemStorage = {
   listeners: [],
   add: function(text) {
 
-    let item = {
+    const item = {
       text: text
     };
 
     this.data.push(item);
-
-    this.listeners.map((listener) => { listener('add') });
+    this.createEvent('add');
   },
 
   get: function() {
     return this.data;
   },
 
+  delete: function(index) {
+    this.data.splice(index,1);
+    this.createEvent('delete');
+  },
+
   addEventListener: function(callback) {
     this.listeners.push(callback);
+  },
+
+  createEvent(event) {
+    this.listeners.map((listener) => { listener(event) });
   }
 };
 
@@ -94,10 +104,55 @@ class Todo extends Component {
   }
 }
 
+const DeleteButton = styled.button`
+transition-timing-function: ease;
+transition-duration: 200ms;
+display: inline-block;
+font-size: 13px;
+letter-spacing: 1px;
+text-transform: uppercase;
+color: #fff;
+background-color: #7AE2DE;
+padding: 20px;
+text-decoration: none;
+line-height: 1;
+margin-bottom: 0;
+font-weight: 400;
+text-align: center;
+white-space: nowrap;
+vertical-align: middle;
+-ms-touch-action: manipulation;
+    touch-action: manipulation;
+cursor: pointer;
+-webkit-user-select: none;
+   -moz-user-select: none;
+    -ms-user-select: none;
+        user-select: none;
+background-image: none;
+border: 1px solid transparent;
+`;
+
+class TodoItemDelete extends Component {
+  constructor(props) {
+    super(props);
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick(event) {
+    itemStorage.delete(this.props.index);
+  }
+
+  render() {
+    return (
+      <DeleteButton onClick={this.handleClick}>delete</DeleteButton>
+    )
+  }
+}
+
 class TodoList extends React.Component {
 
   render() {
-    const items = this.props.items.map((item, index) => <li key={index}>{item.text}</li>)
+    const items = this.props.items.map((item, index) => <li key={index}>{item.text} <TodoItemDelete index={index}/></li>)
     return (
       <ul>{items}</ul>
     );
