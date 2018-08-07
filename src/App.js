@@ -1,73 +1,113 @@
 import React, { Component } from 'react';
-
-import {
-  Link
-} from 'react-router-dom'
-
-import Router from './Router'
-
-
-
 import './App.css';
 
-const items = [
-      {
-        'id': 1,
-        'name': 'Home',
-        'href': '/'
-      },
-      {
-        'id': 2,
-        'name': 'About Us',
-        'href': '/about'
-      },
-      {
-        'id':3,
-        'name': 'Contact Us',
-        'href': '/contacts'
-      }
-    ];
 
-const Header = () => (
-  <header>
-    <ul className="navigation">
-      {items.map(item => 
-        <li key={item.id} className="navigation__item">
-          <Link className="navigation__item--link" to={item.href}>{ item.name }</Link>
-        </li>)}
-    </ul>
-  </header>
-      )
+const itemStorage = {
+  data: [],
+  listeners: [],
+  add: function(text) {
 
+    let item = {
+      text: text
+    };
 
-const About = () => (
-  <div>About</div>
-)
+    this.data.push(item);
 
+    this.listeners.map((listener) => { listener('add') });
+  },
 
-const Home = () => (
-  <div>
-    <h1>Welcome to the Tornadoes Website!</h1>
-  </div>
-)
+  get: function() {
+    return this.data;
+  },
 
-/*const Main = () => (
-  <main>
-    <Switch>
-      <Route exact path='/' component={Home}/>
-      <Route exact path='/about' component={About}/>
-    </Switch>
-  </main>
-)*/
+  addEventListener: function(callback) {
+    this.listeners.push(callback);
+  }
+};
 
+itemStorage.add('item1');
+itemStorage.add('item2');
 
+class TodoForm extends Component {
 
+  constructor(props) {
+    super(props);
 
+    this.state = {
+      text:''
+    };
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+  }
+
+  handleInputChange(event) {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
+
+    this.setState({
+      [name]: value
+    });
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    itemStorage.add(this.state.text);
+    event.target.reset();
+  }
+
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <label>
+          <input type="text" name="text" onChange={this.handleInputChange}/>
+        </label>
+      <input type="submit" value="Submit" />
+    </form>
+    )
+  }
+}
+
+class Todo extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {items:[]};
+
+    this.updateItems = this.updateItems.bind(this);
+
+    itemStorage.addEventListener(this.updateItems);
+  }
+
+  updateItems() {
+    this.setState({items: itemStorage.get()});
+  }
+
+  componentDidMount() {
+    this.updateItems();
+  }
+
+  render() {
+    return (
+      <div><TodoList items={this.state.items}/><TodoForm/></div>)
+  }
+}
+
+class TodoList extends React.Component {
+
+  render() {
+    const items = this.props.items.map((item, index) => <li key={index}>{item.text}</li>)
+    return (
+      <ul>{items}</ul>
+    );
+  }
+}
 
 class App extends Component {
   render() {
-    return ( 
-      <div><Header/><Router/></div>
+    return (
+      <Todo />
     );
   }
 }
